@@ -1,0 +1,116 @@
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f6faff;
+  padding: 32px 16px;
+}
+.auth-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(30,34,90,0.07);
+  padding: 32px;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.auth-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #181c23;
+  margin: 0 0 8px 0;
+  text-align: center;
+}
+
+/* test  */
+.auth-card input,
+.auth-card select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #181c23;
+  background: #fff;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  margin: 0 auto;
+  display: block;
+}
+.auth-card input:focus,
+.auth-card select:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.education-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+.auth-card button {
+  width: 100%;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.auth-card button:hover {
+  background: #1d4ed8;
+}
+.auth-card button:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+.auth-error {
+  color: #dc2626;
+  font-size: 0.95rem;
+  text-align: center;
+  margin-top: 4px;
+}
+.auth-success {
+  color: #16a34a;
+  font-size: 0.95rem;
+  text-align: center;
+  margin-top: 4px;
+}
+.auth-link-row {
+  text-align: center;
+  font-size: 0.95rem;
+  color: #4b5563;
+}
+.auth-link-row a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 4px;
+}
+.auth-link-row a:hover {
+  text-decoration: underline;
+}
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 24px 16px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+ 

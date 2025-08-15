@@ -1,0 +1,121 @@
+.feature-guard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  margin: 16px 0;
+}
+
+.feature-guard-content {
+  text-align: center;
+  max-width: 400px;
+}
+
+.feature-guard-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.feature-guard-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.feature-guard-content p {
+  color: #64748b;
+  font-size: 1rem;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.feature-guard-upgrade-btn {
+  background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.feature-guard-upgrade-btn:hover {
+  background: linear-gradient(90deg, #1d4ed8 0%, #6d28d9 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+.feature-guard-upgrade-btn:active {
+  transform: translateY(0);
+}
+
+/* Compact version for inline use */
+.feature-guard.compact {
+  padding: 12px 16px;
+  margin: 8px 0;
+}
+
+.feature-guard.compact .feature-guard-content {
+  max-width: none;
+}
+
+.feature-guard.compact .feature-guard-icon {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.feature-guard.compact h3 {
+  font-size: 1rem;
+  margin: 0 0 4px 0;
+}
+
+.feature-guard.compact p {
+  font-size: 0.875rem;
+  margin: 0 0 12px 0;
+}
+
+.feature-guard.compact .feature-guard-upgrade-btn {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+}
+
+/* Disabled state */
+.feature-guard.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Premium styling for pro features */
+.feature-guard.premium {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid #f59e0b;
+}
+
+.feature-guard.premium .feature-guard-icon {
+  color: #d97706;
+}
+
+.feature-guard.premium h3 {
+  color: #92400e;
+}
+
+.feature-guard.premium p {
+  color: #a16207;
+}
+
+.feature-guard.premium .feature-guard-upgrade-btn {
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+}
+
+.feature-guard.premium .feature-guard-upgrade-btn:hover {
+  background: linear-gradient(90deg, #d97706 0%, #b45309 100%);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+} 

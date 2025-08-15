@@ -1,0 +1,56 @@
+/* === Not-Found Banner ========================================= */
+.not-found-banner {
+  /* matches homepage hero height & spacing rhythm */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;                /* mirrors .homepage-hero */
+  padding: 60px 16px;              /* roomy but mobile-friendly */
+  background: #f6faff;             /* same canvas neutral      */
+  text-align: center;
+}
+
+/* Primary headline ------------------------------------------------------ */
+.not-found-banner h1 {
+  font-family: --var(--font-primary);
+  font-size: 3.5rem;               /* slightly smaller than 4 rem hero */
+  font-weight: 800;                /* confident, bold                 */
+  line-height: 1.1;
+  margin: 0 0 20px;
+  /* brand gradient fill */
+  background: linear-gradient(90deg, #4d50ff 0%, #9c32ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+          background-clip: text;
+          color: transparent;
+}
+
+/* Supporting sub-headline ---------------------------------------------- */
+.not-found-banner h3 {
+  font-family: --var(--font-primary);
+  font-size: 1.35rem;              /* sits between body (1 rem) and h2 (2 rem) */
+  font-weight: 500;
+  color: #6b7280;                  /* calm slate tone                  */
+  max-width: 640px;
+  margin: 0 auto 32px;
+}
+
+
+.not-found-banner::after {
+  content: '';
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  margin: 0 auto;
+  background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+/*************  ✨ Windsurf Command ⭐  *************/
+.not-found-banner a {
+  text-decoration: underline;
+  position: relative;
+  color:linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+

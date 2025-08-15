@@ -1,0 +1,65 @@
+
+
+.patent-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.patent-list li {
+  margin-right: 12px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.patent-list li:not(:last-child)::after {
+  content: ',';
+  white-space: nowrap;
+  margin-right: -10px;
+}
+
+
+
+.verified-icon {
+  color: #3b82f6;
+  margin-top: -250
+}
+
+
+/* ─── IP RESULTS CARD  (builds on your existing .patent-list rules) ───────── */
+
+.IP-results {
+  /* Mirrors .analysis-section */
+  background: #f8fafc;               /* very light gray-blue               */
+  border: 1px solid #e2e8f0;         /* gray-200 border                    */
+  border-radius: 10px;               /* same radius rhythm as other cards  */
+  padding: 16px 18px;
+  margin-top: 12px;                  /* gentle separation from header line */
+}
+
+/* headline (“Intellectual Property Assessment”) already styled via <h4>—no change */
+
+/* USPTO source badge – overrides your float for better responsiveness */
+.uspto-verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-style: italic;               /* from your original */
+  font-weight: normal;
+  font-size: 0.9rem;
+  color: #1e40af;                   /* indigo-800 for accessibility */
+  margin-left: auto;    
+  float: right;
+  font-style: italic;
+  font-weight: normal;            /* pushes it to the right inline */
+}
+
+.verified-icon {
+  color: #3b82f6;                   /* your blue tone */
+  font-size: 1.05rem;
+  margin-top: -2px;                 /* subtle optical alignment             */
+}
+
