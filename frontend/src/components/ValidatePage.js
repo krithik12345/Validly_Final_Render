@@ -180,7 +180,7 @@ const ValidatePage = () => {
         };
       }
 
-      const response = await axios.post('http://localhost:5000/api/chat', requestBody);
+      const response = await axios.post('https://validly-final-render.onrender.com/api/chat', requestBody);
       let parsed = response.data.reply;
 
       if (typeof parsed === 'string') {
@@ -205,7 +205,7 @@ const ValidatePage = () => {
 
   // Immediately hard-reload the browser on that new URL
   // (this only happens once, right here)
-   window.location.reload();
+//   window.location.reload();
       } else {
         stopProgressSimulation();
         setLoading(false);
