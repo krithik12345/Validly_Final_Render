@@ -292,7 +292,7 @@ const handlePageChange = (newPage) => {
       await supabase.from('profiles').delete().eq('id', user.id);
 
       // 2. Call your backend to delete the user from Auth
-      const response = await fetch('http://localhost:5000/api/delete-user', {
+      const response = await fetch('https://validly-final-render.onrender.com/api/delete-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user.id }),
@@ -347,12 +347,12 @@ const handlePageChange = (newPage) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/get-customer-id?email=${encodeURIComponent(email)}`);
+      const response = await fetch(`https://validly-final-render.onrender.com/get-customer-id?email=${encodeURIComponent(email)}`);
       const data = await response.json();
 
       if (response.ok && data.hasActiveSubscription) {
         // User has active subscription, redirect to Stripe billing portal
-        window.location.href = `http://localhost:5000/customers/${data.customerId}`;
+        window.location.href = `https://validly-final-render.onrender.com/customers/${data.customerId}`;
       } else {
         // No subscription or no customer found, redirect to pricing page
         navigate('/pricing');
