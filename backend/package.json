@@ -1,0 +1,38 @@
+{
+  "name": "ai-powered-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google/genai": "^1.10.0",
+    "@googleapis/drive": "^14.2.0",
+    "@googleapis/forms": "^4.0.1",
+    "@supabase/supabase-js": "^2.50.0",
+    "axios": "^1.10.0",
+    "body-parser": "^2.2.0",
+    "cookie-session": "^2.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "google-auth-library": "^10.2.0",
+    "googleapis": "^154.1.0",
+    "groq-sdk": "^0.25.0",
+    "jsonwebtoken": "^9.0.2",
+    "linkup-sdk": "^1.0.8",
+    "mongodb": "^6.17.0",
+    "mongoose": "^8.15.1",
+    "openai": "^5.2.0",
+    "puppeteer": "^24.10.0",
+    "stripe": "^18.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
