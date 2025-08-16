@@ -583,7 +583,7 @@ const handleSaveIdea = async () => {
       <MVPResults analysis={analysis} ensureArray={ensureArray}/>
       
       <div className="results-actions">
-        <button className="validate-another-btn" onClick={() => navigate('https://validly-final-render-1.onrender.com//validate')}>Validate Another Idea</button>
+        <button className="validate-another-btn" onClick={() => navigate('https://validly-final-render-1.onrender.com/validate')}>Validate Another Idea</button>
         <button className={`save-idea-btn ${saveSuccess ? 'saved' : ''}`} onClick={handleSaveIdea} disabled={isSaving || saveSuccess}>
             <FiSave style={{ marginRight: 8 }} />
             {isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save Idea'}
