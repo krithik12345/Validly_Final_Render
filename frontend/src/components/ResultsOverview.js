@@ -155,8 +155,8 @@ const ResultsOverview = ({ analysis }) => {
       
       <div className="results-overview-content">
         <p className="market-demand-summary">
-          This overall score evaluates your idea's potential based on market demand and market competitiveness, 
-          {isPersonalized ? ' and your founder fit.' : '.'}
+          This overall score evaluates your idea's potential based on market demand and market competitiveness
+          {isPersonalized ? ' along with your founder fit.' : '.'}
         </p>
         
         {/* Factor Breakdown - Now takes full width */}

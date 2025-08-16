@@ -40,7 +40,9 @@ app.use(session({
   keys: [ process.env.SESSION_SECRET || 'dev_secret' ],
   maxAge: 24 * 60 * 60 * 1000, // 1 day
   httpOnly: true,
-  sameSite: 'lax'
+  secure: true,       // required when SameSite=None
+  sameSite: 'none'    // cross-site cookie (frontend != backend)
+  // DO NOT set domain when using different base domains (onrender.com vs validlyapp.com)
 }));
 
 // 3) Body parsing (skip Stripe/webhook if you have one)
