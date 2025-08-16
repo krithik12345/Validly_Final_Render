@@ -4,166 +4,119 @@ const express    = require('express');
 const axios      = require('axios');
 const { google } = require('googleapis');
 const Groq       = require('groq-sdk');
-const router     = express.Router();
+
+const router = express.Router();
 
 const groq = new Groq(process.env.GROQ_API_KEY);
 
-// OAuth2 client for user consent
+// OAuth2 client for user-consent
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_OAUTH_CLIENT_ID,
   process.env.GOOGLE_OAUTH_CLIENT_SECRET,
-  `${process.env.BASE_URL || 'https://validly-final-render.onrender.com'}/survey/oauth2callback`
+  `${process.env.BASE_URL || 'http://localhost:5000'}/survey/oauth2callback`
 );
+
 const SCOPES = [
   'https://www.googleapis.com/auth/forms.body',
   'https://www.googleapis.com/auth/drive.file'
 ];
 
 /**
- * GET /survey/status
- * Checks/refreshes tokens in session. 200 if valid, 401 if not.
- */
-router.get('/status', async (req, res) => {
-  const tokens = req.session.tokens;
-  if (!tokens) {
-    return res.status(401).json({ authenticated: false });
-  }
-
-  oauth2Client.setCredentials(tokens);
-  try {
-    await oauth2Client.getAccessToken();        // triggers refresh if expired
-    req.session.tokens = oauth2Client.credentials;
-    return res.json({ authenticated: true });
-  } catch (err) {
-    console.error('Token refresh failed:', err);
-    delete req.session.tokens;
-    return res.status(401).json({ authenticated: false });
-  }
-});
-
-/**
  * GET /survey/auth
- * Opens Google’s consent screen in a popup.
+ * Opens Google’s consent flow in the popup.
+ * We pass the caller-provided `state` through to Google so it returns to us.
+ * `state` will include the user's survey `input` (base64-encoded JSON).
  */
-router.get('/auth', (_req, res) => {
+router.get('/auth', (req, res) => {
+  const state = req.query.state || ''; // pass-through
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     prompt: 'consent',
-    scope: SCOPES
+    scope: SCOPES,
+    state
   });
   res.redirect(url);
 });
 
 /**
- * GET /survey/oauth2callback
- * Handles Google's redirect with ?code=…
- * Exchanges code for tokens, stores them, then closes popup.
+ * Utility: decode base64-encoded, URI-encoded JSON safely
  */
-router.get('/oauth2callback', async (req, res) => {
-  const code = req.query.code;
-  if (!code) {
-    return res.status(400).send('Missing code parameter');
-  }
-
+function decodeStateJSON(state) {
   try {
-    const { tokens } = await oauth2Client.getToken(code);
-    req.session.tokens = tokens;
-
-    // Notify opener and close popup
-    res.send(`
-      <html><body>
-        <script>
-          window.opener.postMessage({ surveyAuth: true }, '*');
-          window.close();
-        </script>
-        <p>Authentication successful. You can close this window.</p>
-      </body></html>
-    `);
-  } catch (err) {
-    console.error('OAuth2 callback error:', err);
-    res.status(500).send('Authentication failed');
+    // state was encoded as: btoa(encodeURIComponent(JSON.stringify(obj)))
+    const decoded = Buffer.from(state, 'base64').toString('utf8');
+    const jsonStr = decodeURIComponent(decoded);
+    return JSON.parse(jsonStr);
+  } catch {
+    return {};
   }
-});
+}
 
 /**
- * POST /survey
- * 1) Fetch dynamic survey JSON from your LLM
- * 2) Create the Form
- * 3) Batch-update with the LLM’s requests array
- * 4) Set permissions
- * 5) Return a “force-copy” link
+ * GET /survey/oauth2callback
+ * Handles Google's redirect (?code, ?state), exchanges tokens, then
+ * immediately CREATES the survey on the server (first-party cookie),
+ * and posts the result back to the opener. No cross-site cookie needed.
  */
-router.post('/', async (req, res) => {
-  const tokens = req.session.tokens;
-  console.log(req.body.input);
-  if (!tokens) {
-    return res
-      .status(401)
-      .json({ error: 'Not authenticated; please start with /survey/auth' });
-  }
+router.get('/oauth2callback', async (req, res) => {
+  const code  = req.query.code;
+  const state = req.query.state || '';
 
-  oauth2Client.setCredentials(tokens);
-  const forms = google.forms({ version: 'v1', auth: oauth2Client });
+  if (!code) return res.status(400).send('Missing code parameter');
+
+  // Recover the input payload from state
+  const { input = '' } = decodeStateJSON(state);
 
   try {
-    // 1) Ask LLM for properly structured JSON
+    // 1) Exchange code → tokens
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+
+    // 2) Build Forms client
+    const forms = google.forms({ version: 'v1', auth: oauth2Client });
+
+    // 3) Ask LLM for a properly structured survey JSON (matches Forms API)
     const fetchQuestions = await groq.chat.completions.create({
       model: "meta-llama/llama-4-scout-17b-16e-instruct",
       messages: [
         {
           role: 'system',
           content: `
-You are an AI designed to help founders validate startup ideas. Based on the user's idea, generate a single JSON object compatible with the Google Forms API.
+You generate survey definitions for the Google Forms API.
+Output a single JSON object with:
+  • form_title       (string)
+  • form_description (string, optional)
+  • requests         (array of createItem requests)
 
-Your output must include:
+Each element in "requests" must exactly match the Forms v1 batchUpdate spec.
+For multiple-choice questions, use "choiceQuestion" with type "RADIO" or "CHECKBOX", e.g.:
 
-form_title (string)
-
-form_description (string, optional)
-
-requests (array of exactly five createItem requests, per Forms v1 batchUpdate spec)
-
-Each survey question must:
-
-Be explicitly grounded in the provided startup idea (no generic or reusable prompts)
-
-Yield actionable insights for product refinement or market scoping
-
-Be concise, clear, and formatted as Google Forms JSON
-
-Use a mix of:
-
-Open-ended questions (via "textQuestion") for deep insight
-
-Choice-based questions (via "choiceQuestion" with type "RADIO" or "CHECKBOX") for quantitative feedback
-
-Strictly output only the final JSON object. No explanations or commentary.
-
-Example request format:
 {
-"createItem": {
-"item": {
-"title": "Your question?",
-"questionItem": {
-"question": {
-"choiceQuestion": {
-"options": [
-{ "value": "Option A" },
-{ "value": "Option B" }
-],
-"type": "CHECKBOX"
+  "createItem": {
+    "item": {
+      "title": "Your question?",
+      "questionItem": {
+        "question": {
+          "choiceQuestion": {
+            "options": [
+              { "value": "Option A" },
+              { "value": "Option B" }
+            ],
+            "type": "CHECKBOX"
+          }
+        }
+      }
+    },
+    "location": { "index": 0 }
+  }
 }
-}
-}
-},
-"location": { "index": 0 }
-}
-}
+
+Output ONLY the JSON—no commentary.
           `
         },
         {
           role: 'user',
-          content: JSON.stringify({ idea: req.body.input || "" })
+          content: JSON.stringify({ idea: input || "" })
         }
       ],
       response_format: {
@@ -186,7 +139,7 @@ Example request format:
                         item: {
                           type: "object",
                           properties: {
-                            title:        { type: "string" },
+                            title: { type: "string" },
                             questionItem: {
                               type: "object",
                               properties: {
@@ -195,16 +148,11 @@ Example request format:
                                   properties: {
                                     textQuestion: {
                                       type: "object",
-                                      properties: {
-                                        paragraph: { type: "boolean" }
-                                      }
+                                      properties: { paragraph: { type: "boolean" } }
                                     },
                                     scaleQuestion: {
                                       type: "object",
-                                      properties: {
-                                        low:  { type: "integer" },
-                                        high: { type: "integer" }
-                                      },
+                                      properties: { low: { type: "integer" }, high: { type: "integer" } },
                                       required: ["low","high"]
                                     },
                                     choiceQuestion: {
@@ -214,22 +162,18 @@ Example request format:
                                           type: "array",
                                           items: {
                                             type: "object",
-                                            properties: {
-                                              value: { type: "string" }
-                                            },
+                                            properties: { value: { type: "string" } },
                                             required: ["value"]
                                           }
                                         },
                                         type: {
                                           type: "string",
-                                          enum: ["RADIO","CHECKBOX"]
+                                          enum: ["RADIO","CHECKBOX"] // <-- correct enums
                                         }
                                       },
                                       required: ["options","type"]
                                     }
-                                  },
-                                  // require at least one question type
-                                  required: ["choiceQuestion"]
+                                  }
                                 }
                               },
                               required: ["question"]
@@ -256,49 +200,62 @@ Example request format:
       }
     });
 
-    // 2) Parse LLM response
     const surveyDef = JSON.parse(fetchQuestions.choices[0].message.content);
     const { form_title, form_description, requests } = surveyDef;
 
-    // 3) Create form
+    // 4) Create Form
     const createRes = await forms.forms.create({
       requestBody: {
         info: {
-          title: form_title
+          title: form_title || 'Idea-Validation Survey (Template)',
+          ...(form_description ? { description: form_description } : {})
         }
       }
     });
     const formId = createRes.data.formId;
 
-    requests.push({
-    updateFormInfo: {
-      info: {
-        description: form_description, // Replace with your desired description
-      },
-      updateMask: "description", // This tells the API to only update the description field
-    },
-  });
-
-    // 4) Batch-update using exactly the LLM’s requests
+    // 5) BatchUpdate with LLM-generated requests
     await forms.forms.batchUpdate({
-      formId,    
+      formId,
       requestBody: { requests }
     });
 
-
-
-    // 5) Make it publicly readable
+    // 6) Make it viewable by anyone
     await axios.post(
       `https://www.googleapis.com/drive/v3/files/${formId}/permissions`,
       { role: 'reader', type: 'anyone' },
       { headers: { Authorization: `Bearer ${tokens.access_token}` } }
     );
 
-    // 6) Return the copy link
-    res.json({ copyUrl: `https://docs.google.com/forms/d/${formId}/` });
+    const copyUrl = `https://docs.google.com/forms/d/${formId}/copy`;
+
+    // 7) Post the result back to the opener and close
+    res.send(`
+      <html><body>
+        <script>
+          try {
+            window.opener && window.opener.postMessage({ surveyDone: true, copyUrl: ${JSON.stringify(copyUrl)} }, '*');
+          } catch (e) {}
+          window.close();
+        </script>
+        <p>Survey created. You can close this window.</p>
+        <a href="${copyUrl}" target="_blank" rel="noopener">Open form copy link</a>
+      </body></html>
+    `);
   } catch (err) {
-    console.error('Survey creation error:', err.response?.data || err);
-    res.status(500).json({ error: 'Survey generation failed' });
+    console.error('OAuth2 callback/survey error:', err.response?.data || err);
+    // Signal error to opener as well
+    res.status(500).send(`
+      <html><body>
+        <script>
+          try {
+            window.opener && window.opener.postMessage({ surveyDone: false, error: 'Survey generation failed' }, '*');
+          } catch (e) {}
+          window.close();
+        </script>
+        <p>Survey generation failed. You can close this window.</p>
+      </body></html>
+    `);
   }
 });
 

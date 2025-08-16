@@ -1,7 +1,5 @@
 // AudienceResults.js
-// ────────────────────────────────────────────────────────────────
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import {
   FiUsers, FiCheckCircle, FiLink,
   FiMessageSquare, FiCopy
@@ -10,80 +8,53 @@ import '../components/ValidatePage.css';
 
 const BACKEND = process.env.REACT_APP_BACKEND_URL || 'https://validly-final-render.onrender.com';
 
-const AudienceResults = ({ analysis, handleCopyPitch, getScoreColor, ensureArray, input}) => {
+const AudienceResults = ({ analysis, handleCopyPitch, getScoreColor, ensureArray, input }) => {
   const [surveyLink, setSurveyLink] = useState(null);
   const [loading, setLoading]       = useState(false);
   const [error, setError]           = useState(null);
 
-  // 1) Listen for “surveyAuth” from popup to trigger createSurvey()
+  // Listen for popup message with result
   useEffect(() => {
     const onMessage = (e) => {
-      if (e.data?.surveyAuth) createSurvey();
+      if (e.data?.surveyDone) {
+        if (e.data.copyUrl) {
+          setSurveyLink(e.data.copyUrl);
+          setError(null);
+        } else {
+          setError(e.data.error || 'Survey creation failed.');
+        }
+        setLoading(false);
+      }
     };
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
   }, []);
 
-  // 2) Create the form & get link
-  const createSurvey = async () => {
-    setLoading(true);
+  const startPopupFlow = () => {
+    setSurveyLink(null);
     setError(null);
-    try {
-      const res = await axios.post(
-        `${BACKEND}/survey`,
-        { input },
-        { withCredentials: true }
-      );
-      setSurveyLink(res.data.copyUrl);
-    } catch (err) {
-      setError('Failed to create survey.');
-      console.error(err);
-    } finally {
+    setLoading(true);
+
+    // Encode `input` into OAuth `state`
+    const statePayload = { input: input || '' };
+    // btoa requires ASCII. Wrap in encodeURIComponent for safety.
+    const state = btoa(encodeURIComponent(JSON.stringify(statePayload)));
+
+    const url = `${BACKEND}/survey/auth?state=${encodeURIComponent(state)}`;
+
+    const popup = window.open(
+      url,
+      'ValidlyGoogleOAuth',
+      'width=600,height=600'
+    );
+    if (!popup) {
+      setError('Please enable popups for this site.');
       setLoading(false);
     }
   };
 
-  // 3) Entry point: check auth status first
-  const handleGetSurvey = async () => {
-    setError(null);
-    setSurveyLink(null);
-    setLoading(true);
-
-    try {
-      // Ask the server if we’re already authenticated
-      await axios.get(
-        `${BACKEND}/survey/status`,
-        { withCredentials: true }
-      );
-      // 200 → go straight to create
-      await createSurvey();
-    } catch (err) {
-      // 401 → not yet authed, open popup
-      const popup = window.open(
-        `${BACKEND}/survey/auth`,
-        'ValidlyGoogleOAuth',
-        'width=600,height=400'
-      );
-      // Keep checking every 1000ms if the popup has been closed
-      // // (i.e. the user closed it without completing the authorization)
-      // const checkIfClosed = setInterval(() => {
-      //   if (popup.closed) {
-      //     // If it has been closed, stop checking and set an error message
-      //     setError('Popup was closed without completing authorization.');
-      //     setLoading(false);
-      //     clearInterval(checkIfClosed);
-      //   }
-      // }, 1000);
-      // if (!popup) {
-      //   setError('Please enable popups for this site.');
-      //   setLoading(false);
-      // }
-      // popup flow will trigger createSurvey() via postMessage
-    }
-  };
-
   return (
-      <div className="results-section target-audience">
+    <div className="results-section target-audience">
       {/* Target Audience */}
       <div className="target-audience-header">
         <span className="target-audience-icon-bg">
@@ -110,18 +81,12 @@ const AudienceResults = ({ analysis, handleCopyPitch, getScoreColor, ensureArray
                       href={dest.url || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`destination-button ${
-                        (dest.type || 'Other').toLowerCase().replace(' ', '-')
-                      }`}
+                      className={`destination-button ${(dest.type || 'Other').toLowerCase().replace(' ', '-')}`}
                     >
                       <FiLink className="destination-icon" />
                       <div className="destination-info">
-                        <span className="destination-name">
-                          {dest.name || 'Unknown'}
-                        </span>
-                        <span className="destination-type">
-                          {dest.type || 'Other'}
-                        </span>
+                        <span className="destination-name">{dest.name || 'Unknown'}</span>
+                        <span className="destination-type">{dest.type || 'Other'}</span>
                       </div>
                     </a>
                   ))}
@@ -156,11 +121,12 @@ const AudienceResults = ({ analysis, handleCopyPitch, getScoreColor, ensureArray
         </div>
       </div>
 
+      {/* Survey */}
       <div className="survey-btn-container">
-        {surveyLink ? null : (
+        {!surveyLink && (
           <button
             className="survey-btn"
-            onClick={handleGetSurvey}
+            onClick={startPopupFlow}
             disabled={loading}
           >
             {loading ? 'Processing…' : 'Get a Survey Link'}
