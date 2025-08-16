@@ -23,13 +23,13 @@ const Footer = () => {
                   </div>
                   <div className="footer-col footer-links">
                     <div className="footer-links-title">Product</div>
-                    <a href="/under-construction" className="footer-link">Features</a>
+                    <a href="/under-construction" className="footer-link" onClick={e => { e.preventDefault(); navigate('/under-construction'); }}>Features</a>
                     <a href="/pricing" className="footer-link" onClick={e => { e.preventDefault(); navigate('/pricing'); }}>Pricing</a>
-                    <a href="/under-construction" className="footer-link">Examples</a>
+                    <a href="/under-construction" className="footer-link" onClick={e => { e.preventDefault(); navigate('/under-construction'); }}>Examples</a>
                   </div>
                   <div className="footer-col footer-links">
                     <div className="footer-links-title">Company</div>
-                    <a href="/under-construction" className="footer-link">About</a>
+                    <a href="/under-construction" className="footer-link" onClick={e => { e.preventDefault(); navigate('/under-construction'); }}>About</a>
                     <a href="/privacy" className="footer-link" onClick={e => { e.preventDefault(); navigate('/privacy'); }}>Privacy Policy</a>
                     <a href="/tos" className="footer-link" onClick={e => { e.preventDefault(); navigate('/tos'); }}>Terms of Service</a>
                   </div>
