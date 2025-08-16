@@ -227,7 +227,7 @@ Output ONLY the JSON—no commentary.
       { headers: { Authorization: `Bearer ${tokens.access_token}` } }
     );
 
-    const copyUrl = `https://docs.google.com/forms/d/${formId}/copy`;
+    const copyUrl = `https://docs.google.com/forms/d/${formId}`;
 
     // 7) Post the result back to the opener and close
     res.send(`
