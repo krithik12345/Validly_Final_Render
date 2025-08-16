@@ -504,7 +504,7 @@ const handleSaveIdea = async () => {
   if (analysis.personalizedstatus) {
       return (
     <div className="results-container">
-      <a className="back-link" href="/validate">← Validate Another Idea</a>
+      <button className="back-link" onClick={() => navigate('/validate')}>← Validate Another Idea</button>
       <div className="results-header">
         <div className="results-header-left">
           <h2>Validation Results</h2>
@@ -564,7 +564,7 @@ const handleSaveIdea = async () => {
   }
   return (
     <div className="results-container">
-      <a className="back-link" href="/validate">← Validate Another Idea</a>
+      <button className="back-link" onClick={() => navigate('/validate')}>← Validate Another Idea</button>
       <div className="results-header">
         <div className="results-header-left">
           <h2>Validation Results</h2>
