@@ -180,7 +180,7 @@ const ValidatePage = () => {
         };
       }
 
-      const response = await axios.post('https://validly-final-render.onrender.com/api/chat', requestBody);
+      const response = await axios.post('https://validly-final-render-1.onrender.com/api/chat', requestBody);
       let parsed = response.data.reply;
 
       if (typeof parsed === 'string') {
