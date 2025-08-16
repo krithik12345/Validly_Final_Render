@@ -20,7 +20,7 @@ const CompetitorResults = (props) => {
     if (!alreadyVisible && !hasFetchedMap[idx]) {
       try {
         setLoadingMap(prev => ({ ...prev, [idx]: true }));
-        const response = await axios.post('http://localhost:5000/patents', { companyName: compName, input: userInput });
+        const response = await axios.post('https://validly-final-render.onrender.com/patents', { companyName: compName, input: userInput });
         setPatentDataMap(prev => ({ ...prev, [idx]: response.data }));
       } catch (error) {
         console.error("Error fetching patent data:", error);
