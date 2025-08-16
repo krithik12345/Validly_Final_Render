@@ -65,19 +65,19 @@ const AudienceResults = ({ analysis, handleCopyPitch, getScoreColor, ensureArray
         'width=600,height=400'
       );
       // Keep checking every 1000ms if the popup has been closed
-      // (i.e. the user closed it without completing the authorization)
-      const checkIfClosed = setInterval(() => {
-        if (popup.closed) {
-          // If it has been closed, stop checking and set an error message
-          setError('Popup was closed without completing authorization.');
-          setLoading(false);
-          clearInterval(checkIfClosed);
-        }
-      }, 1000);
-      if (!popup) {
-        setError('Please enable popups for this site.');
-        setLoading(false);
-      }
+      // // (i.e. the user closed it without completing the authorization)
+      // const checkIfClosed = setInterval(() => {
+      //   if (popup.closed) {
+      //     // If it has been closed, stop checking and set an error message
+      //     setError('Popup was closed without completing authorization.');
+      //     setLoading(false);
+      //     clearInterval(checkIfClosed);
+      //   }
+      // }, 1000);
+      // if (!popup) {
+      //   setError('Please enable popups for this site.');
+      //   setLoading(false);
+      // }
       // popup flow will trigger createSurvey() via postMessage
     }
   };
