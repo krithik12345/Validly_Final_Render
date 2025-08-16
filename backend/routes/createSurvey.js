@@ -12,7 +12,7 @@ const groq = new Groq(process.env.GROQ_API_KEY);
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_OAUTH_CLIENT_ID,
   process.env.GOOGLE_OAUTH_CLIENT_SECRET,
-  `${process.env.BASE_URL || 'http://localhost:5000'}/survey/oauth2callback`
+  `${process.env.BASE_URL || 'https://validly-final-render.onrender.com'}/survey/oauth2callback`
 );
 const SCOPES = [
   'https://www.googleapis.com/auth/forms.body',

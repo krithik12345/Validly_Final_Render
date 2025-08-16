@@ -8,7 +8,7 @@ import {
 } from 'react-icons/fi';
 import '../components/ValidatePage.css';
 
-const BACKEND = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+const BACKEND = process.env.REACT_APP_BACKEND_URL || 'https://validly-final-render.onrender.com';
 
 const AudienceResults = ({ analysis, handleCopyPitch, getScoreColor, ensureArray, input}) => {
   const [surveyLink, setSurveyLink] = useState(null);
