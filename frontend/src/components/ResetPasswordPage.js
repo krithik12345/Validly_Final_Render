@@ -20,6 +20,12 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setError('Recovery link is invalid or expired. Request a new email and open it directly in your browser.');
+      return;
+    }
+
     const { error } = await supabase.auth.updateUser({
       password
     });
