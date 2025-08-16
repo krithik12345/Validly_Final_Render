@@ -12,9 +12,6 @@ require('dotenv').config();
 const app  = express();
 const PORT = process.env.PORT || 5000;
 
-import cors from "cors";
-import express from "express";
-
 const allowedOrigins = [
   process.env.FRONTEND_URL || "http://localhost:3000",
   "https://www.validlyapp.com",
