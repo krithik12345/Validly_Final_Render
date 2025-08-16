@@ -12,11 +12,30 @@ require('dotenv').config();
 const app  = express();
 const PORT = process.env.PORT || 5000;
 
-// 1) CORS: allow your React popup to send cookies
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
-}));
+import cors from "cors";
+import express from "express";
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL || "http://localhost:3000",
+  "https://www.validlyapp.com",
+  "https://validly-final-render.onrender.com",   // optional, keep if you test directly
+  "https://validly-final-render-1.onrender.com" // optional, keep if you test directly
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // allow requests with no origin (like mobile apps or curl)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 
 // 2) Session: store OAuth tokens in a signed, httpOnly cookie
 app.use(session({
