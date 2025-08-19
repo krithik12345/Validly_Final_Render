@@ -30,6 +30,8 @@ app.use(
       }
     },
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
   })
 );
 
@@ -40,9 +42,9 @@ app.use(session({
   keys: [ process.env.SESSION_SECRET || 'dev_secret' ],
   maxAge: 24 * 60 * 60 * 1000, // 1 day
   httpOnly: true,
-  secure: true,       // required when SameSite=None
-  sameSite: 'none'    // cross-site cookie (frontend != backend)
-  // DO NOT set domain when using different base domains (onrender.com vs validlyapp.com)
+  secure: process.env.NODE_ENV === 'production', // only secure in production
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // cross-site cookie in production
+  // Note: domain is intentionally not set for cross-origin compatibility
 }));
 
 // 3) Body parsing (skip Stripe/webhook if you have one)

@@ -25,14 +25,25 @@ const AudienceResults = ({ analysis, handleCopyPitch, getScoreColor, ensureArray
   }, []);
 
   // 2) Create the form & get link
-  const createSurvey = async () => {
+  const createSurvey = async (tempToken = null) => {
     setLoading(true);
     setError(null);
     try {
+      const config = {
+        withCredentials: true
+      };
+      
+      // If we have a temp token, use it in Authorization header
+      if (tempToken) {
+        config.headers = {
+          'Authorization': `Bearer ${tempToken}`
+        };
+      }
+      
       const res = await axios.post(
         `${BACKEND}/survey`,
         { input },
-        { withCredentials: true }
+        config
       );
       setSurveyLink(res.data.copyUrl);
     } catch (err) {
@@ -58,27 +69,34 @@ const AudienceResults = ({ analysis, handleCopyPitch, getScoreColor, ensureArray
       // 200 → go straight to create
       await createSurvey();
     } catch (err) {
-      // 401 → not yet authed, open popup
-      const popup = window.open(
-        `${BACKEND}/survey/auth`,
-        'ValidlyGoogleOAuth',
-        'width=600,height=400'
-      );
-      // Keep checking every 1000ms if the popup has been closed
-      // // (i.e. the user closed it without completing the authorization)
-      // const checkIfClosed = setInterval(() => {
-      //   if (popup.closed) {
-      //     // If it has been closed, stop checking and set an error message
-      //     setError('Popup was closed without completing authorization.');
-      //     setLoading(false);
-      //     clearInterval(checkIfClosed);
-      //   }
-      // }, 1000);
-      // if (!popup) {
-      //   setError('Please enable popups for this site.');
-      //   setLoading(false);
-      // }
-      // popup flow will trigger createSurvey() via postMessage
+      // Session auth failed, try token-based approach
+      try {
+        // Get a temporary token
+        const tokenRes = await axios.get(
+          `${BACKEND}/survey/token`,
+          { withCredentials: true }
+        );
+        
+        if (tokenRes.data.token) {
+          // Use the token to create survey
+          await createSurvey(tokenRes.data.token);
+        } else {
+          throw new Error('No token received');
+        }
+      } catch (tokenErr) {
+        // Both session and token auth failed, open popup for OAuth
+        const popup = window.open(
+          `${BACKEND}/survey/auth`,
+          'ValidlyGoogleOAuth',
+          'width=600,height=400'
+        );
+        
+        if (!popup) {
+          setError('Please enable popups for this site.');
+          setLoading(false);
+        }
+        // popup flow will trigger createSurvey() via postMessage
+      }
     }
   };
 

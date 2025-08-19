@@ -19,6 +19,46 @@ const SCOPES = [
   'https://www.googleapis.com/auth/drive.file'
 ];
 
+// Clean up expired tokens every 10 minutes
+setInterval(() => {
+  if (global.tempTokens) {
+    const now = Date.now();
+    for (const [token, data] of global.tempTokens.entries()) {
+      if (data.expiry < now) {
+        global.tempTokens.delete(token);
+      }
+    }
+  }
+}, 10 * 60 * 1000); // 10 minutes
+
+// Helper function to get tokens from session or temp token
+const getTokens = (req) => {
+  // First try session tokens
+  if (req.session.tokens) {
+    return req.session.tokens;
+  }
+  
+  // Then try temp token from Authorization header
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const tempToken = authHeader.substring(7);
+    const tokenData = global.tempTokens?.get(tempToken);
+    
+    if (tokenData && tokenData.expiry > Date.now()) {
+      // Clean up expired tokens
+      global.tempTokens.delete(tempToken);
+      return tokenData.tokens;
+    }
+    
+    // Clean up expired token
+    if (tokenData) {
+      global.tempTokens.delete(tempToken);
+    }
+  }
+  
+  return null;
+};
+
 /**
  * GET /survey/status
  * Checks/refreshes tokens in session. 200 if valid, 401 if not.
@@ -39,6 +79,61 @@ router.get('/status', async (req, res) => {
     delete req.session.tokens;
     return res.status(401).json({ authenticated: false });
   }
+});
+
+/**
+ * GET /survey/token
+ * Returns a temporary token for cross-origin requests
+ */
+router.get('/token', async (req, res) => {
+  const tokens = req.session.tokens;
+  if (!tokens) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  // Create a temporary token that expires in 5 minutes
+  const tempToken = require('crypto').randomBytes(32).toString('hex');
+  const tokenExpiry = Date.now() + (5 * 60 * 1000); // 5 minutes
+  
+  // Store in memory (in production, use Redis or similar)
+  if (!global.tempTokens) global.tempTokens = new Map();
+  global.tempTokens.set(tempToken, {
+    tokens,
+    expiry: tokenExpiry
+  });
+
+  res.json({ token: tempToken, expiresIn: 300 });
+});
+
+/**
+ * GET /survey/test-token
+ * Test endpoint to verify token system is working
+ */
+router.get('/test-token', async (req, res) => {
+  const tokens = getTokens(req);
+  if (tokens) {
+    res.json({ authenticated: true, method: 'token' });
+  } else {
+    res.status(401).json({ authenticated: false });
+  }
+});
+
+/**
+ * GET /survey/debug
+ * Debug endpoint to check session and headers
+ */
+router.get('/debug', (req, res) => {
+  res.json({
+    session: req.session,
+    hasTokens: !!req.session.tokens,
+    headers: {
+      origin: req.headers.origin,
+      referer: req.headers.referer,
+      cookie: req.headers.cookie ? 'present' : 'missing',
+      authorization: req.headers.authorization ? 'present' : 'missing'
+    },
+    tempTokensCount: global.tempTokens ? global.tempTokens.size : 0
+  });
 });
 
 /**
@@ -94,7 +189,7 @@ router.get('/oauth2callback', async (req, res) => {
  * 5) Return a “force-copy” link
  */
 router.post('/', async (req, res) => {
-  const tokens = req.session.tokens;
+  const tokens = getTokens(req);
   console.log(req.body.input);
   if (!tokens) {
     return res
