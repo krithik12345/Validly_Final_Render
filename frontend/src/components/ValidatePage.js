@@ -39,10 +39,15 @@ const ValidatePage = () => {
   // Show all models to all users, but handle access control on selection
   const availableModels = modeList;
 
-  // Debug logging
-  console.log('User Plan:', userPlan);
-  console.log('Can use Deep Research:', canUseDeepResearch());
-  console.log('Available Models:', availableModels);
+  // Memoize the deep research access check to prevent unnecessary re-computations
+  const canUseDeepResearchValue = React.useMemo(() => canUseDeepResearch(), [canUseDeepResearch]);
+
+  // Debug logging - only run when user plan changes, not on every render
+  useEffect(() => {
+    console.log('User Plan:', userPlan);
+    console.log('Can use Deep Research:', canUseDeepResearchValue);
+    console.log('Available Models:', availableModels);
+  }, [userPlan, canUseDeepResearchValue, availableModels]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -87,28 +92,28 @@ const ValidatePage = () => {
     };
   }, []);
 
-  const countWords = (text) => {
+  const countWords = React.useCallback((text) => {
     return text.trim().split(/\s+/).filter(word => word.length > 0).length;
-  };
+  }, []);
 
-  const handleMessageChange = (e) => {
+  const handleMessageChange = React.useCallback((e) => {
     const newMessage = e.target.value;
     setMessage(newMessage);
     setWordCount(countWords(newMessage));
     setCharCount(newMessage.length);
-  };
+  }, []);
 
-  const getWordCountColor = () => {
+  const getWordCountColor = React.useMemo(() => {
     if (wordCount > maxWords) return '#dc2626'; // red
     if (wordCount > maxWords * 0.8) return '#f59e0b'; // amber
     return '#6b7280'; // gray
-  };
+  }, [wordCount, maxWords]);
 
-  const getCharCountColor = () => {
+  const getCharCountColor = React.useMemo(() => {
     if (charCount > maxChars) return '#dc2626'; // red
     if (charCount > maxChars * 0.8) return '#f59e0b'; // amber
     return '#6b7280'; // gray
-  };
+  }, [charCount, maxChars]);
 
   const startProgressSimulation = () => {
     setProgress(0);
@@ -133,7 +138,7 @@ const ValidatePage = () => {
 
   // Handle model selection with access control
   const handleModelSelection = (model) => {
-    if (model === 'Deep Research' && !canUseDeepResearch()) {
+    if (model === 'Deep Research' && !canUseDeepResearchValue) {
       setUpgradeType('deep-research');
       setShowUpgradeNotification(true);
       return;
@@ -239,10 +244,10 @@ const ValidatePage = () => {
           <p>Share your vision and let Validly provide comprehensive validation insights!</p>
           <div className="validate-controls-row">
             <div className="limit-indicators">
-              <span className="word-count-indicator" style={{ color: getWordCountColor() }}>
+              <span className="word-count-indicator" style={{ color: getWordCountColor }}>
                 {wordCount} / {maxWords} Words
               </span>
-              <span className="char-count-indicator" style={{ color: getCharCountColor() }}>
+              <span className="char-count-indicator" style={{ color: getCharCountColor }}>
                 {charCount} / {maxChars} Chars
               </span>
             </div>
@@ -268,11 +273,11 @@ const ValidatePage = () => {
                     {availableModels.map((model) => (
                       <li
                         key={model}
-                        className={`${model === selectedModel ? 'selected' : ''} ${model === 'Quick Search' ? 'quick-search' : ''} ${model === 'Deep Research' ? 'deep-search' : ''} ${model === 'Deep Research' && !canUseDeepResearch() ? 'premium-locked' : ''}`}
+                        className={`${model === selectedModel ? 'selected' : ''} ${model === 'Quick Search' ? 'quick-search' : ''} ${model === 'Deep Research' ? 'deep-search' : ''} ${model === 'Deep Research' && !canUseDeepResearchValue ? 'premium-locked' : ''}`}
                         onClick={() => handleModelSelection(model)}
                       >
                         {model}
-                        {model === 'Deep Research' && !canUseDeepResearch()}
+                        {model === 'Deep Research' && !canUseDeepResearchValue}
                       </li>
                     ))}
                   </ul>
