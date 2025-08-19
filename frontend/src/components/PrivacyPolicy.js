@@ -129,8 +129,8 @@ const PrivacyPolicy = () => {
             <h2>13. Contact Us</h2>
             <p>If you have questions about this Privacy Policy or our data practices, please contact us at:</p>
             <div className="contact-info">
-              <p><strong>Email:</strong> privacy@validlyapp.com</p>
-              <p><strong>Address:</strong> Validly, Inc.</p>
+              <p><strong>Email:</strong> contact@validlyapp.com</p>
+              <p><strong>Address:</strong> Validly.</p>
             </div>
           </div>
         </div>

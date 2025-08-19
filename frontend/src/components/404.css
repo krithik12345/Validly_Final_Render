@@ -1,56 +1,103 @@
+/* === Not-Found Container ============================================= */
+.not-found-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f6faff;
+}
+
 /* === Not-Found Banner ========================================= */
 .not-found-banner {
-  /* matches homepage hero height & spacing rhythm */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 70vh;                /* mirrors .homepage-hero */
-  padding: 60px 16px;              /* roomy but mobile-friendly */
-  background: #f6faff;             /* same canvas neutral      */
+  padding: 40px 20px;
   text-align: center;
+  max-width: 800px;
+  width: 100%;
 }
 
 /* Primary headline ------------------------------------------------------ */
 .not-found-banner h1 {
-  font-family: --var(--font-primary);
-  font-size: 3.5rem;               /* slightly smaller than 4 rem hero */
-  font-weight: 800;                /* confident, bold                 */
+  font-family: var(--font-primary, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
   line-height: 1.1;
   margin: 0 0 20px;
   /* brand gradient fill */
   background: linear-gradient(90deg, #4d50ff 0%, #9c32ff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-          background-clip: text;
-          color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Supporting sub-headline ---------------------------------------------- */
 .not-found-banner h3 {
-  font-family: --var(--font-primary);
-  font-size: 1.35rem;              /* sits between body (1 rem) and h2 (2 rem) */
+  font-family: var(--font-primary, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  font-size: clamp(1rem, 3vw, 1.35rem);
   font-weight: 500;
-  color: #6b7280;                  /* calm slate tone                  */
+  color: #6b7280;
   max-width: 640px;
-  margin: 0 auto 32px;
+  margin: 0 auto 20px;
+  line-height: 1.5;
 }
 
-
-.not-found-banner::after {
-  content: '';
-  display: block;
-  height: 4px;
-  border-radius: 2px;
-  margin: 0 auto;
-  background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
-}
-
-/*************  ✨ Windsurf Command ⭐  *************/
-.not-found-banner a {
+/* Redirect link styling ------------------------------------------------ */
+.redirect-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  color: #4d50ff;
   text-decoration: underline;
-  position: relative;
-  color:linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.redirect-link:hover {
+  color: #9c32ff;
+  text-decoration: none;
+}
+
+.redirect-link:focus {
+  outline: 2px solid #4d50ff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Mobile responsiveness ------------------------------------------------ */
+@media (max-width: 768px) {
+  .not-found-banner {
+    padding: 30px 16px;
+  }
+  
+  .not-found-banner h1 {
+    margin-bottom: 16px;
+  }
+  
+  .not-found-banner h3 {
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .not-found-banner {
+    padding: 20px 12px;
+  }
+  
+  .not-found-banner h1 {
+    margin-bottom: 12px;
+  }
+  
+  .not-found-banner h3 {
+    margin-bottom: 12px;
+  }
 }
 
 

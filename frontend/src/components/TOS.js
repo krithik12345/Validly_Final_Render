@@ -132,7 +132,7 @@ const TOS = () => {
             <h2>14. Contact Information</h2>
             <p>If you have any questions about these Terms of Service, please contact us at:</p>
             <div className="contact-info">
-              <p><strong>Email:</strong> validly@gmail.com</p>
+              <p><strong>Email:</strong> contact@validlyapp.com</p>
               <p><strong>Address:</strong> Validly, Inc.</p>
             </div>
           </div>
