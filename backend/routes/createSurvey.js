@@ -137,6 +137,23 @@ router.get('/debug', (req, res) => {
 });
 
 /**
+ * GET /survey/test
+ * Simple test endpoint that works with both session and token auth
+ */
+router.get('/test', (req, res) => {
+  const tokens = getTokens(req);
+  if (tokens) {
+    res.json({ 
+      authenticated: true, 
+      method: req.session.tokens ? 'session' : 'token',
+      hasAccessToken: !!tokens.access_token
+    });
+  } else {
+    res.status(401).json({ authenticated: false });
+  }
+});
+
+/**
  * GET /survey/auth
  * Opens Google’s consent screen in a popup.
  */
@@ -162,13 +179,29 @@ router.get('/oauth2callback', async (req, res) => {
 
   try {
     const { tokens } = await oauth2Client.getToken(code);
+    
+    // Store tokens in session AND create a temporary token
     req.session.tokens = tokens;
+    
+    // Create a temporary token that expires in 10 minutes
+    const tempToken = require('crypto').randomBytes(32).toString('hex');
+    const tokenExpiry = Date.now() + (10 * 60 * 1000); // 10 minutes
+    
+    // Store in memory
+    if (!global.tempTokens) global.tempTokens = new Map();
+    global.tempTokens.set(tempToken, {
+      tokens,
+      expiry: tokenExpiry
+    });
 
-    // Notify opener and close popup
+    // Notify opener with the token and close popup
     res.send(`
       <html><body>
         <script>
-          window.opener.postMessage({ surveyAuth: true }, '*');
+          window.opener.postMessage({ 
+            surveyAuth: true, 
+            token: '${tempToken}' 
+          }, '*');
           window.close();
         </script>
         <p>Authentication successful. You can close this window.</p>

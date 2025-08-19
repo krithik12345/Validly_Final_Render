@@ -18,7 +18,15 @@ const AudienceResults = ({ analysis, handleCopyPitch, getScoreColor, ensureArray
   // 1) Listen for “surveyAuth” from popup to trigger createSurvey()
   useEffect(() => {
     const onMessage = (e) => {
-      if (e.data?.surveyAuth) createSurvey();
+      if (e.data?.surveyAuth) {
+        // Use the token passed from OAuth callback
+        const token = e.data.token;
+        if (token) {
+          createSurvey(token);
+        } else {
+          createSurvey(); // Fallback to session-based
+        }
+      }
     };
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
@@ -69,34 +77,19 @@ const AudienceResults = ({ analysis, handleCopyPitch, getScoreColor, ensureArray
       // 200 → go straight to create
       await createSurvey();
     } catch (err) {
-      // Session auth failed, try token-based approach
-      try {
-        // Get a temporary token
-        const tokenRes = await axios.get(
-          `${BACKEND}/survey/token`,
-          { withCredentials: true }
-        );
-        
-        if (tokenRes.data.token) {
-          // Use the token to create survey
-          await createSurvey(tokenRes.data.token);
-        } else {
-          throw new Error('No token received');
-        }
-      } catch (tokenErr) {
-        // Both session and token auth failed, open popup for OAuth
-        const popup = window.open(
-          `${BACKEND}/survey/auth`,
-          'ValidlyGoogleOAuth',
-          'width=600,height=400'
-        );
-        
-        if (!popup) {
-          setError('Please enable popups for this site.');
-          setLoading(false);
-        }
-        // popup flow will trigger createSurvey() via postMessage
+      // Session auth failed - user needs to authenticate first
+      // Open popup for OAuth (don't try token approach yet)
+      const popup = window.open(
+        `${BACKEND}/survey/auth`,
+        'ValidlyGoogleOAuth',
+        'width=600,height=400'
+      );
+      
+      if (!popup) {
+        setError('Please enable popups for this site.');
+        setLoading(false);
       }
+      // popup flow will trigger createSurvey() via postMessage
     }
   };
 
