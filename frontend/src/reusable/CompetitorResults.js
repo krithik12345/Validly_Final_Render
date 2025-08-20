@@ -41,7 +41,7 @@ const CompetitorResults = (props) => {
     setTimeout(() => {
       setIsModalClosing(false);
       setModalOpenIdx(null);
-    }, 220);
+    }, 110);
   };
 
   // Lock body scroll and handle ESC close
@@ -97,7 +97,6 @@ const CompetitorResults = (props) => {
                 ) : (
                   <>
                     <b>Read More</b>
-                    <FiChevronsDown className="chevron-icon" />
                   </>
                 )}
               </button>
@@ -191,7 +190,16 @@ const CompetitorResults = (props) => {
                               <p><b>Number of Patents: {patentIds.length}</b></p>
                               <ul className="patent-list">
                                 {patentIds.map((id, i) => (
-                                  <li key={i}>{id}</li>
+                                  <li key={i}>
+                                    <a
+                                      href={`https://patentcenter.uspto.gov/applications/${encodeURIComponent(id)}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      title={`Open in USPTO Patent Center: ${id}`}
+                                    >
+                                      {id}
+                                    </a>
+                                  </li>
                                 ))}
                               </ul>
                             </div>
