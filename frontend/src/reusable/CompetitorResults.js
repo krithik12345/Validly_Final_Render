@@ -192,7 +192,7 @@ const CompetitorResults = (props) => {
                                 {patentIds.map((id, i) => (
                                   <li key={i}>
                                     <a
-                                      href={`https://patentcenter.uspto.gov/applications/${encodeURIComponent(id)}`}
+                                      href={`https://patents.google.com/patent/US${encodeURIComponent(id)}`}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       title={`Open in USPTO Patent Center: ${id}`}
