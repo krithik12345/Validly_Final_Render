@@ -63,3 +63,228 @@
   margin-top: -2px;                 /* subtle optical alignment             */
 }
 
+
+/* ─── COMPETITOR CARD HOVER (subtle lift similar to ResultsOverview) ───────── */
+
+.competitor-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px; /* tighter like before */
+  margin-bottom: 12px; /* tighter spacing between cards */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.competitor-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: -1;
+}
+
+.competitor-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.12);
+}
+
+.competitor-card:hover::before {
+  opacity: 0.03;
+}
+
+.competitor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px; /* tighter */
+  margin-bottom: 6px; /* tighter */
+  padding-bottom: 6px; /* tighter */
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.competitor-name {
+  font-weight: 600;
+  color: #1e293b;
+  transition: color 0.2s ease;
+}
+
+.competitor-card:hover .competitor-name {
+  color: #4f46e5;
+}
+
+.competitor-desc {
+  color: #374151;
+  line-height: 1.5;
+  margin-bottom: 4px; /* tighter */
+}
+
+.competitor-meta {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 8px; /* tighter */
+  transition: color 0.2s ease;
+}
+
+/* Modal for Read More */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  animation: modalFadeIn 220ms ease-out forwards;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 12px;
+  width: min(800px, 92vw);
+  max-height: 85vh;
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  transform: translateY(8px) scale(0.98);
+  opacity: 0;
+  animation: modalContentIn 220ms ease-out forwards;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.modal-competitor-name {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.modal-close:hover {
+  color: #374151;
+}
+
+.modal-body {
+  padding: 16px;
+}
+
+.modal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 0;
+  color: #6b7280;
+}
+
+/* Spinner */
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
+}
+
+.spinner.large {
+  width: 28px;
+  height: 28px;
+  border-width: 3px;
+  margin-right: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.button-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Open/close animations */
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes modalContentIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes modalContentOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(12px) scale(0.96); }
+}
+
+.modal-backdrop.closing {
+  animation: modalFadeOut 200ms ease-in forwards;
+}
+
+.modal-content.closing {
+  animation: modalContentOut 200ms ease-in forwards;
+}
+
+.competitor-card:hover .competitor-meta {
+  color: #4b5563;
+}
+
+/* Optional: popularity badge styling */
+.popularity-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.popularity-badge.low {
+  background: #f0fdf4;
+  color: #065f46;
+}
+
+.popularity-badge.medium {
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.popularity-badge.high {
+  background: #fef2f2;
+  color: #991b1b;
+}
