@@ -1,1 +1,1 @@
-This project is a AI Platform that validates users various business ideas using LLM chainprompting.
+This project is a AI Platform that validates users various business ideas using LLM chainprompting along with pulling data from the US patent office to see whether those ideas are new in the market. This was deployed using render and the main LLM we are using as an API is called LinkUp, a Web Search LLM.
